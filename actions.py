@@ -1,18 +1,16 @@
+'''The actions module contains a description of the main classes and methods'''
 import re
 from collections import UserDict
 from datetime import datetime, timedelta
 
 class InvalidPhoneNumberFormat(Exception):
     '''Raised when input phone number is not 10 digits'''
-    pass
 
 class NoneRecordFound(Exception):
     '''Raised when none record found'''
-    pass
 
 class DateValueError(ValueError):
     '''Raised when input date in incorrect format'''
-    pass
 
 class Field:
     '''Basic class for text information'''
@@ -24,13 +22,9 @@ class Field:
 
 class Name(Field):
     '''The class for contact name'''
-    def __init__(self, value):
-        super().__init__(value)
 
 class Phone(Field):
     '''The class for phone number'''
-    def __init__(self, value):
-        self._value = value
 
     def __str__(self):
         return self.value
@@ -40,6 +34,7 @@ class Phone(Field):
 
     @property
     def value(self):
+        '''Isolate the value for Phone'''
         return self._value
 
     @value.setter
@@ -50,15 +45,17 @@ class Phone(Field):
             raise InvalidPhoneNumberFormat("Phone number must be a string of 10 digits.")
 
 class Birthday(Field):
+    '''The class for phone number'''
     def __init__(self, value: str):
         try:
-            self.value = datetime.strptime(value, "%Y-%m-%d")
+            date_value = datetime.strptime(value, "%Y-%m-%d")
         except ValueError:
-            raise DateValueError()
-        
+            raise DateValueError() from Birthday
+        super().__init__(date_value)
+
     def __str__(self):
         return self.value.strftime("%Y-%m-%d")
-    
+
     def __repr__(self):
         return self.value.strftime("%Y-%m-%d")
 
@@ -80,6 +77,7 @@ class Record:
             raise InvalidPhoneNumberFormat
 
     def add_birthday(self, birthday: Birthday):
+        '''This method allow to add a birthday to contact'''
         self.birthday = Birthday(birthday)
 
     def edit_phone(self, old_phone: str, new_phone: str):
@@ -94,12 +92,20 @@ class Record:
             if phone.value == phone_to_remove:
                 del self.phones[index]
 
+    # def find_phone(self, phone_to_search: str) -> Phone:
+    #     '''This method accept phone number and return existing Phone object'''
+    #     for index, phone in enumerate(self.phones):
+    #         if phone.value == phone_to_search:
+    #             return phone.value
+    #     return None
+
     def find_phone(self, phone_to_search: str) -> Phone:
-        '''This method accept phone number and return existing Phone object'''
-        for index, phone in enumerate(self.phones):
+        '''This method accepts a phone number and returns the existing Phone object'''
+        for phone in self.phones:
             if phone.value == phone_to_search:
-                return phone.value
+                return phone
         return None
+
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
@@ -107,8 +113,6 @@ class Record:
 
 class AddressBook(UserDict):
     '''The main class for object for user interract with'''
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def add_record(self, record):
         '''
@@ -138,7 +142,7 @@ class AddressBook(UserDict):
         current_date = datetime.today().date()
         current_year = current_date.year
         upcoming_birthdays = list()
-        for name, record in self.data.items():
+        for record in self.data.values():
             if record.birthday is None:
                 continue
             birthday = record.birthday.value
