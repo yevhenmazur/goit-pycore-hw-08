@@ -50,7 +50,7 @@ class Birthday(Field):
         try:
             date_value = datetime.strptime(value, "%Y-%m-%d")
         except ValueError:
-            raise DateValueError() from Birthday
+            raise DateValueError() from ValueError
         super().__init__(date_value)
 
     def __str__(self):
@@ -91,13 +91,6 @@ class Record:
         for index, phone in enumerate(self.phones):
             if phone.value == phone_to_remove:
                 del self.phones[index]
-
-    # def find_phone(self, phone_to_search: str) -> Phone:
-    #     '''This method accept phone number and return existing Phone object'''
-    #     for index, phone in enumerate(self.phones):
-    #         if phone.value == phone_to_search:
-    #             return phone.value
-    #     return None
 
     def find_phone(self, phone_to_search: str) -> Phone:
         '''This method accepts a phone number and returns the existing Phone object'''
